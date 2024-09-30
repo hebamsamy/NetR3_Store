@@ -1,8 +1,9 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Repository;
+using System.Security.Claims;
 using System.Text;
-using ViewModel;
+using ViewModels;
 
 namespace API.Controllers
 {
@@ -24,7 +25,9 @@ namespace API.Controllers
         [Route("VendorList")]
         public IActionResult VendorList()
         {
-            return Ok();
+            var vendorID = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var list = productManager.GetAll().Where(i=> i.VendorID == vendorID).ToList();
+            return Ok(list);
         }
 
        
@@ -49,7 +52,7 @@ namespace API.Controllers
         [Route("add")]
         public IActionResult Add(AddProductViewModel addProduct)
         {
-            addProduct.vendorID = "b5c57c91-4603-4a47-bd0c-d5c3b7f3fd4f";
+            addProduct.vendorID = User.FindFirstValue(ClaimTypes.NameIdentifier);
             if (ModelState.IsValid)
             {
                 foreach (IFormFile file in addProduct.Images)

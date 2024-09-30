@@ -1,6 +1,12 @@
-﻿using Microsoft.AspNetCore.Identity;
+﻿using LinqKit;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.Extensions.Configuration;
+using Microsoft.IdentityModel.Tokens;
 using Models;
-using ViewModel;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
+using System.Text;
+using ViewModels;
 
 namespace Managers
 {
@@ -9,14 +15,17 @@ namespace Managers
         private UserManager<User> userManager;
         private SignInManager<User> signInManager;
         private VendorManager vendorManager;
+        private IConfiguration configuration;
         public AccountManager(ProjectContext context 
             ,UserManager<User> _userManager, 
             SignInManager<User> _signmanager,
-            VendorManager _vendorManager
+            VendorManager _vendorManager,
+            IConfiguration _configuration
             ) : base(context) {
             signInManager = _signmanager;
             userManager = _userManager;
             vendorManager = _vendorManager;
+            configuration = _configuration;
         }
 
 
@@ -46,7 +55,7 @@ namespace Managers
             }
         }
 
-        public async Task<SignInResult> Login(UserLoginViewModel viewModel) {
+        public async Task<string> Login(UserLoginViewModel viewModel) {
 
             //is value in (viewModel.LoginMethod) EMAIL OR UserName
             var user = await
@@ -57,11 +66,33 @@ namespace Managers
                 user = await userManager.FindByNameAsync(viewModel.LoginMethod);
                 if (user == null)
                 {
-                    return SignInResult.Failed;
+                    return "Failed";
                 }
             }
             
-            return await  signInManager.PasswordSignInAsync(user, viewModel.Password,viewModel.RemeberMe,true); 
+            var res =  await  signInManager.PasswordSignInAsync(user, viewModel.Password,viewModel.RemeberMe,true);
+            if (res.Succeeded)
+            {
+                 List<Claim> claims = new List<Claim>();
+                claims.Add(new Claim(ClaimTypes.NameIdentifier, user.Id));
+
+                var roles = await userManager.GetRolesAsync(user);
+                roles.ForEach(r => claims.Add(new Claim(ClaimTypes.Role, r)));
+                
+                JwtSecurityToken securityToken = new JwtSecurityToken(
+                    signingCredentials: new SigningCredentials(
+                        new SymmetricSecurityKey(Encoding.ASCII.GetBytes(configuration["JWT:Key"]))
+                    , SecurityAlgorithms.HmacSha256),
+                    expires : DateTime.Now.AddHours(1),
+                    claims:claims
+                    );
+                return new JwtSecurityTokenHandler().WriteToken(securityToken);
+            }
+            else
+            {
+                return string.Empty;
+            }
+            //return
             
         }
          public async void SignOut()

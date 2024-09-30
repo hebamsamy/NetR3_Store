@@ -1,7 +1,7 @@
 ﻿using LinqKit;
 using Managers;
 using Models;
-using ViewModel;
+using ViewModels;
 
 namespace Repository
 {

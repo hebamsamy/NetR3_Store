@@ -1,7 +1,7 @@
 ﻿using Managers;
 using Microsoft.AspNetCore.Mvc;
 using System.Text;
-using ViewModel;
+using ViewModels;
 
 namespace API.Controllers
 {

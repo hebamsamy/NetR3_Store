@@ -1,6 +1,6 @@
 ﻿using Models;
 
-namespace ViewModel
+namespace ViewModels
 {
     public static class ProductExtaintions
     {

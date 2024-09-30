@@ -1,7 +1,7 @@
 ﻿using Managers;
 using Microsoft.AspNetCore.Mvc;
 using System.Text;
-using ViewModel;
+using ViewModels;
 
 namespace API.Controllers
 {
@@ -61,20 +61,39 @@ namespace API.Controllers
             if (ModelState.IsValid)
             {
                 var result = await accountManager.Login(viewModel);
-                if (result.Succeeded)
+                if(string.IsNullOrEmpty(result))
                 {
-                    //token
-                    //TODO
-                    return Ok();
+                    return new JsonResult( new APIResult<string>()
+                    {
+                        Result = "",
+                        Message = "Sorry Your Cridentionals is in valid Try Again!!!",
+                        StatusCode = 400,
+                        Success = false
 
+                    });
                 }
-                else if (result.IsLockedOut)
+                else if (result == "Failed")
                 {
-                    return new JsonResult("Sorry Your Account Is under Review , Try Later!!!");
+                    return new JsonResult(new APIResult<string>()
+                    {
+                        Result = "",
+                        Message = "Sorry Your Account Is under Review , Try Later!!!",
+                        StatusCode = 400,
+                        Success = false
+
+                    });
                 }
-                else
-                {
-                    return new JsonResult("", "Sorry Your Cridentionals is in valid Try Again!!!");
+                else{
+                    
+                    return new JsonResult (new APIResult<string>()
+                    {
+                        Result = result,
+                        Message = "Login Successfully",
+                        StatusCode = 200,
+                        Success = true
+
+                    });
+
                 }
             }
             else

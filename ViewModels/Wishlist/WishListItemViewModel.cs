@@ -1,6 +1,6 @@
 ﻿using Models;
 
-namespace ViewModels.Wishlist
+namespace ViewModels
 {
     public class WishListItemViewModel
     {
