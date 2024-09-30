@@ -16,7 +16,7 @@ namespace ViewModel
             }
             return new Product
             {
-                ID = addProduct.ID,
+                ID = addProduct.ID??0,
                 Name = addProduct.Name,
                 Price = addProduct.Price,
                 Quantity = addProduct.Quantity,

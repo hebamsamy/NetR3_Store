@@ -6,7 +6,7 @@ namespace ViewModel
 {
     public class AddProductViewModel
     {
-        public int ID { get; set; }
+        public int? ID { get; set; }
         [Required(ErrorMessage = "Please, Provide a valid Product Name")]
         [StringLength(50, ErrorMessage = "Must be more 5 letter", MinimumLength = 5)]
         public string Name { get; set; }

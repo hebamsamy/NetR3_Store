@@ -49,18 +49,23 @@ namespace API.Controllers
         [Route("add")]
         public IActionResult Add(AddProductViewModel addProduct)
         {
-            addProduct.vendorID = "";
+            addProduct.vendorID = "b5c57c91-4603-4a47-bd0c-d5c3b7f3fd4f";
             if (ModelState.IsValid)
             {
                 foreach (IFormFile file in addProduct.Images)
                 {
-                    FileStream fileStream = new FileStream(
-                        Path.Combine(
-                            Directory.GetCurrentDirectory(), "Images", "Product", file.FileName),
-                        FileMode.Create);
+                    string fileName = DateTime.Now.ToFileTime().ToString() + file.FileName;
+                    string path = Path.Combine(
+                        Directory.GetCurrentDirectory(),
+                        "wwwroot",
+                        "Images",
+                        "Product", fileName
+                        );
+                    FileStream fileStream = new FileStream(path, FileMode.Create);
                     file.CopyTo(fileStream);
-                    fileStream.Position = 0;
-                    addProduct.ImagesURL.Add(file.FileName);
+                    fileStream.Close();
+
+                    addProduct.ImagesURL.Add(Path.Combine("Images", "Category", fileName));
                 }
 
                 productManager.Add(addProduct);
